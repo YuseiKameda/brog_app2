@@ -4,23 +4,19 @@ import { supabase } from "../../lib/supabaseClient";
 import Layout from "../../components/Layout";
 import { NextPage } from "next";
 import Image from "next/image";
+import { Database } from '../../database.types';
 
-type Post = {
-    id: string;
-    title: string;
-    content: string;
-    top_image_url?: string;
-};
+type Post = Database['public']['Tables']['posts']['Row'];
 
 const PostDetail: NextPage = () => {
     const router = useRouter();
     const { id } = router.query;
-    const [post, setPost] = useState<Post | null>(null);
+    const [post, setPost] = useState<Post>();
 
     useEffect(() => {
         if (!id) return;
         const fetchPost = async () => {
-            const { data, error } = await supabase.from<string, Post>("posts").select("*").eq("id", id).single();
+            const { data, error } = await supabase.from("posts").select("*").eq("id", id as string).single();
             if (!error) {
                 setPost(data);
             }

@@ -2,21 +2,18 @@ import { NextPage } from "next";
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import Layout from "../../components/Layout";
+import { Database } from '../../database.types';
 
-type Post = {
-    id: string;
-    title: string;
-    is_public: boolean;
-};
+type Post = Database['public']['Tables']['posts']['Row'];
 
 const PostsPage: NextPage = () => {
     const [posts, setPosts] = useState<Post[]>([]);
 
     useEffect(() => {
         const fetchPosts = async () => {
-            const { data, error } = await supabase.from<string, Post>("posts").select("id, title, is_public").eq("is_public", true);
+            const { data, error } = await supabase.from("posts").select("id, title, is_public").eq("is_public", true);
             if (!error && data) {
-                setPosts(data);
+                setPosts(data as Post[]);
             }
         };
         fetchPosts();
