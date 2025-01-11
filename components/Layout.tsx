@@ -1,11 +1,15 @@
-import React, { ReactNode } from "react";
+import React, { useContext } from "react";
 import Link from "next/link";
+import { AuthContext } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabaseClient";
 
-type LayoutProps = {
-    children: ReactNode;
-};
+const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const { user } = useContext(AuthContext);
 
-const Layout = ({ children }: LayoutProps) => {
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+    };
+
     return (
         <div className="min-h-screen flex flex-col">
             <header className="bg-blue-600 text-white p-4">
@@ -14,8 +18,17 @@ const Layout = ({ children }: LayoutProps) => {
                 </h1>
                 <nav>
                     <Link href="/posts" className="mr-4 hover:underline">投稿一覧</Link>
-                    <Link href="/auth/signin" className="mr-4 hover:underline">ログイン</Link>
-                    <Link href="/auth/signup" className="hover:underline">サインアップ</Link>
+                    {user ? (
+                        <>
+                            <span>{user.email}</span>
+                            <button onClick={handleLogout} className="hover:underline">ログアウト</button>
+                        </>
+                    ) : (
+                        <>
+                            <Link href="/auth/signin" className="mr-4 hover:underline">ログイン</Link>
+                            <Link href="/auth/signup" className="hover:underline">サインアップ</Link>
+                        </>
+                    )}
                 </nav>
             </header>
             <main className="flex-grow container mx-auto p-4">
