@@ -11,12 +11,38 @@ const SignUp: NextPage = () => {
 
     const handleSignUp= async (e: React.FormEvent) => {
         e.preventDefault();
-        const { error } = await supabase.auth.signUp({ email, password });
+        // const { error } = await supabase.auth.signUp({ email, password });
+        // if (error) {
+        //     setErrorMsg(error.message);
+        //     return;
+        // } else {
+        //     setSuccessMsg('確認メールを送信しました。メールをご確認ください。');
+        // }
+
+        const { data, error } = await supabase.auth.signUp({ email, password });
+
         if (error) {
             setErrorMsg(error.message);
             return;
-        } else {
-            setSuccessMsg('確認メールを送信しました。メールをご確認ください。');
+        }
+
+        const user = data?.user;
+        if (user) {
+            const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+                id: user.id,
+                username: user.email,
+                avatar_url: null,
+            });
+
+            if (profileError) {
+            console.error('プロフィール作成エラー:', profileError.message);
+            setErrorMsg('プロフィールの作成に失敗しました。');
+            } else {
+                setSuccessMsg('プロフィールの作成に成功しました')
+                console.log('プロフィール作成成功')
+            }
         }
     };
 
