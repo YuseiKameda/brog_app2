@@ -13,14 +13,40 @@ const PostsPage: NextPage = () => {
     const { user } = useContext(AuthContext);
 
     useEffect(() => {
+        let isMounted =true;
+
         const fetchPosts = async () => {
-            const { data, error } = await supabase.from("posts").select("id, title, is_public").eq("is_public", true);
-            if (!error && data) {
+            const { data, error } = await supabase.from("posts").select("id, title, is_public, user_id").eq("is_public", true);
+            if (isMounted && !error && data) {
                 setPosts(data as Post[]);
+            } else if (error) {
+                console.error('Error fetching posts:', error.message);
             }
         };
         fetchPosts();
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
+
+    const handleDelete = async (postId: string) => {
+        const confirm = window.confirm('本当にこの投稿を削除しますか?');
+        if (!confirm) return;
+
+        const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postId);
+
+        if (error) {
+            console.error('Error deleting post:', error.message);
+            alert('投稿の削除に失敗しました');
+        } else {
+            setPosts(posts.filter((post) => post.id !== postId));
+            alert('投稿が削除されました。')
+        }
+    }
 
 
     return (
@@ -38,8 +64,17 @@ const PostsPage: NextPage = () => {
                     <li key={post.id} className="p-4 border rounded hover:bg-gray-50">
                         <Link href={`/posts/${post.id}`} className="text-xl text-blue-600 hover:underline">
                             {post.title}
-                            <p>{post.is_public ? "公開" : "非公開"}</p>
                         </Link>
+                        {user && post.user_id === user.id && (
+                            <div>
+                                <Link href={`/posts/${post.id}/edit`} className="text-yellow-500 hover:underline">
+                                    編集
+                                </Link>
+                                <button onClick={() => handleDelete(post.id)} className="text-red-500 hover:underline">
+                                    削除
+                                </button>
+                            </div>
+                        )}
                     </li>
                 ))}
             </ul>
