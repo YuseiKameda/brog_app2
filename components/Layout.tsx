@@ -20,6 +20,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     <Link href="/posts" className="mr-4 hover:underline">投稿一覧</Link>
                     {user ? (
                         <>
+                            <Link href='profile' className="mr-4 hover:underline">マイページ</Link>
                             <span>{user.email}</span>
                             <button onClick={handleLogout} className="hover:underline">ログアウト</button>
                         </>
