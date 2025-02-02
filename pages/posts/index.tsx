@@ -5,6 +5,8 @@ import Link from "next/link";
 import Layout from "../../components/Layout";
 import { Database } from '../../database.types';
 import { AuthContext } from "@/context/AuthContext";
+import LikesButton from "@/components/LikesButton";
+import BookmarksButton from "@/components/BookmarkButton";
 
 type Post = Database['public']['Tables']['posts']['Row'];
 
@@ -65,6 +67,10 @@ const PostsPage: NextPage = () => {
                         <Link href={`/posts/${post.id}`} className="text-xl text-blue-600 hover:underline">
                             {post.title}
                         </Link>
+                        <div>
+                            <LikesButton postId={post.id}/>
+                            <BookmarksButton postId={post.id}/>
+                        </div>
                         {user && post.user_id === user.id && (
                             <div>
                                 <Link href={`/posts/${post.id}/edit`} className="text-yellow-500 hover:underline">
